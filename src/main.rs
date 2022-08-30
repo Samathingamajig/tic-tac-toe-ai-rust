@@ -2,12 +2,11 @@ use std::fmt;
 use std::io;
 // use rand::Rng;
 
-const WIDTH: usize = 3;
-const HEIGHT: usize = 3;
+const SIZE: usize = 3;
 
-type Board = [[Tile; WIDTH]; HEIGHT];
+type Board = [[Tile; SIZE]; SIZE];
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 enum Tile {
     Empty,
     X,
@@ -27,18 +26,34 @@ impl fmt::Display for Tile {
 }
 
 fn main() {
-    let mut board: Board = [[Tile::Empty; WIDTH]; HEIGHT];
-    let mut turn: Tile = Tile::X;
-    loop {
+    let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
+    let mut turn_number = 0;
+    let winner: Option<Tile> = loop {
         print_board(&board);
         let selection = match get_selection(&board) {
             Some(n) => n,
-            None => break,
+            None => break None,
         };
         println!("Have selection {:?}", selection);
-        board[selection.0][selection.1] = turn;
-        turn = if turn == Tile::X { Tile::O } else { Tile::X };
-    }
+        board[selection.0][selection.1] = if turn_number % 2 == 0 {
+            Tile::X
+        } else {
+            Tile::O
+        };
+        let winner = determine_winner(board);
+        if winner.is_some() {
+            break winner;
+        };
+        turn_number += 1;
+        if turn_number == SIZE * SIZE {
+            break None;
+        }
+    };
+    print_board(&board);
+    match winner {
+        None => println!("Welp, it's a tie"),
+        Some(player) => println!("Congratulations player {}, you won!", player),
+    };
 }
 
 fn get_selection(board: &Board) -> Option<(usize, usize)> {
@@ -57,7 +72,7 @@ fn get_selection(board: &Board) -> Option<(usize, usize)> {
                 continue;
             }
         };
-        if !(1..=(HEIGHT * WIDTH)).contains(&selection) {
+        if !(1..=(SIZE * SIZE)).contains(&selection) {
             println!("Not in range");
             continue;
         };
@@ -73,7 +88,7 @@ fn get_selection(board: &Board) -> Option<(usize, usize)> {
 fn print_board(board: &Board) {
     for (i, row) in board.iter().enumerate() {
         if i != 0 {
-            for _ in 0..(WIDTH - 1) {
+            for _ in 0..(SIZE - 1) {
                 print!("-+");
             }
             println!("-");
@@ -98,5 +113,42 @@ fn position_to_indicies(pos: usize) -> (usize, usize) {
 }
 
 fn indicies_to_position(ind: (usize, usize)) -> usize {
-    7 - ind.0 * WIDTH + ind.1
+    7 - ind.0 * SIZE + ind.1
+}
+
+fn determine_winner(board: Board) -> Option<Tile> {
+    for player in [Tile::X, Tile::O] {
+        // Check rows
+        for row in board {
+            if row.iter().all(|t| *t == player) {
+                return Some(player);
+            };
+        }
+
+        // Check cols
+        for col_idx in 0..SIZE {
+            if board.map(|row| row[col_idx]).iter().all(|t| *t == player) {
+                return Some(player);
+            };
+        }
+
+        // Check diagonals
+        if board
+            .iter()
+            .enumerate()
+            .map(|(i, row)| row[i])
+            .all(|t| t == player)
+        {
+            return Some(player);
+        };
+        if board
+            .iter()
+            .enumerate()
+            .map(|(i, row)| row[SIZE - i - 1])
+            .all(|t| t == player)
+        {
+            return Some(player);
+        };
+    }
+    None
 }
