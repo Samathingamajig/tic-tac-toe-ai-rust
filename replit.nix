@@ -1,6 +1,7 @@
 { pkgs }: {
 	deps = [
-		pkgs.vim
+		pkgs.less
+  pkgs.vim
   pkgs.rustc
 		pkgs.rustfmt
 		pkgs.cargo

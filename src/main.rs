@@ -109,7 +109,7 @@ fn print_board(board: &Board) {
 }
 
 fn position_to_indicies(pos: usize) -> (usize, usize) {
-    (2 - (pos - 1) / 3, (pos - 1) % 3)
+    (SIZE - 1 - (pos - 1) / SIZE, (pos - 1) % SIZE)
 }
 
 fn indicies_to_position(ind: (usize, usize)) -> usize {
