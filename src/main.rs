@@ -30,11 +30,16 @@ impl fmt::Display for Tile {
 fn main() {
     let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
     let mut turn_number = 0;
-    let bot: Box<dyn TicTacToeBot> = Box::new(RandomBot {});
+    let bot: Box<dyn TicTacToeBot> = Box::new(EasyBot {});
     let winner: Option<Tile> = loop {
         print_board(&board);
+        let turn = if turn_number % 2 == 0 {
+            Tile::X
+        } else {
+            Tile::O
+        };
         let selection = if turn_number % 2 == 1 {
-            let next_move = bot.next_move(&board);
+            let next_move = bot.next_move(&board, &turn);
             println!(
                 "Bot: {:?} aka {}",
                 next_move,
@@ -48,12 +53,8 @@ fn main() {
             }
         };
         println!("Have selection {:?}", selection);
-        board[selection.0][selection.1] = if turn_number % 2 == 0 {
-            Tile::X
-        } else {
-            Tile::O
-        };
-        let winner = determine_winner(board);
+        board[selection.0][selection.1] = turn;
+        let winner = determine_winner(&board);
         if winner.is_some() {
             break winner;
         };
@@ -129,7 +130,7 @@ fn indicies_to_position(ind: Position) -> usize {
     7 - ind.0 * SIZE + ind.1
 }
 
-fn determine_winner(board: Board) -> Option<Tile> {
+fn determine_winner(board: &Board) -> Option<Tile> {
     for player in [Tile::X, Tile::O] {
         // Check rows
         for row in board {
@@ -167,13 +168,13 @@ fn determine_winner(board: Board) -> Option<Tile> {
 }
 
 trait TicTacToeBot {
-    fn next_move(&self, board: &Board) -> Position;
+    fn next_move(&self, board: &Board, turn: &Tile) -> Position;
 }
 
 struct RandomBot;
 
 impl TicTacToeBot for RandomBot {
-    fn next_move(&self, board: &Board) -> Position {
+    fn next_move(&self, board: &Board, _turn: &Tile) -> Position {
         let mut rng = rand::thread_rng();
         let valid_moves = board
             .iter()
@@ -186,5 +187,49 @@ impl TicTacToeBot for RandomBot {
             .collect::<Vec<Position>>()
             .choose(&mut rng)
             .expect("No valid moves")
+    }
+}
+
+struct EasyBot;
+
+impl TicTacToeBot for EasyBot {
+    fn next_move(&self, board: &Board, turn: &Tile) -> Position {
+        let mut rng = rand::thread_rng();
+        let valid_moves: Vec<Position> = board
+            .iter()
+            .enumerate()
+            .map(move |(i, row)| row.iter().enumerate().map(move |(j, v)| (i, j, v)))
+            .flatten()
+            .filter(|(_i, _j, v)| **v == Tile::Empty)
+            .map(|(i, j, _v)| (i, j))
+            .collect();
+
+        let mut instant_wins = valid_moves.iter().filter(|(i, j)| {
+            let mut b = board.clone();
+            b[*i][*j] = *turn;
+            match determine_winner(&b) {
+                Some(t) => t == *turn,
+                _ => false,
+            }
+        });
+
+        if let Some(p) = instant_wins.next() {
+            return *p;
+        }
+
+        let other_turn = if *turn == Tile::X { Tile::O } else { Tile::X };
+        let mut instant_loss = valid_moves.iter().filter(|(i, j)| {
+            let mut b = board.clone();
+            b[*i][*j] = other_turn;
+            match determine_winner(&b) {
+                Some(t) => t == other_turn,
+                _ => false,
+            }
+        });
+        if let Some(p) = instant_loss.next() {
+            return *p;
+        };
+
+        *valid_moves.choose(&mut rng).expect("No valid moves")
     }
 }
