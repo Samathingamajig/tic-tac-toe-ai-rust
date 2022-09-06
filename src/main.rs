@@ -1,8 +1,10 @@
 use std::fmt;
 use std::io;
 // use rand::Rng;
+use rand::seq::SliceRandom;
 
 const SIZE: usize = 3;
+type Position = (usize, usize);
 
 type Board = [[Tile; SIZE]; SIZE];
 
@@ -28,11 +30,22 @@ impl fmt::Display for Tile {
 fn main() {
     let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
     let mut turn_number = 0;
+    let bot: Box<dyn TicTacToeBot> = Box::new(RandomBot {});
     let winner: Option<Tile> = loop {
         print_board(&board);
-        let selection = match get_selection(&board) {
-            Some(n) => n,
-            None => break None,
+        let selection = if turn_number % 2 == 1 {
+            let next_move = bot.next_move(&board);
+            println!(
+                "Bot: {:?} aka {}",
+                next_move,
+                indicies_to_position(next_move)
+            );
+            next_move
+        } else {
+            match get_selection(&board) {
+                Some(n) => n,
+                None => break None,
+            }
         };
         println!("Have selection {:?}", selection);
         board[selection.0][selection.1] = if turn_number % 2 == 0 {
@@ -56,7 +69,7 @@ fn main() {
     };
 }
 
-fn get_selection(board: &Board) -> Option<(usize, usize)> {
+fn get_selection(board: &Board) -> Option<Position> {
     loop {
         let mut buffer = String::new();
         io::stdin()
@@ -108,11 +121,11 @@ fn print_board(board: &Board) {
     }
 }
 
-fn position_to_indicies(pos: usize) -> (usize, usize) {
+fn position_to_indicies(pos: usize) -> Position {
     (SIZE - 1 - (pos - 1) / SIZE, (pos - 1) % SIZE)
 }
 
-fn indicies_to_position(ind: (usize, usize)) -> usize {
+fn indicies_to_position(ind: Position) -> usize {
     7 - ind.0 * SIZE + ind.1
 }
 
@@ -151,4 +164,27 @@ fn determine_winner(board: Board) -> Option<Tile> {
         };
     }
     None
+}
+
+trait TicTacToeBot {
+    fn next_move(&self, board: &Board) -> Position;
+}
+
+struct RandomBot;
+
+impl TicTacToeBot for RandomBot {
+    fn next_move(&self, board: &Board) -> Position {
+        let mut rng = rand::thread_rng();
+        let valid_moves = board
+            .iter()
+            .enumerate()
+            .map(move |(i, row)| row.iter().enumerate().map(move |(j, v)| (i, j, v)))
+            .flatten()
+            .filter(|(_i, _j, v)| **v == Tile::Empty)
+            .map(|(i, j, _v)| (i, j));
+        *valid_moves
+            .collect::<Vec<Position>>()
+            .choose(&mut rng)
+            .expect("No valid moves")
+    }
 }
