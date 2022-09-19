@@ -27,10 +27,15 @@ impl MasterBot {
         turn: &Tile,
         is_maximizing_player: bool,
         depth: i32,
+        alpha: i32,
+        beta: i32,
     ) -> i32 {
         if let Some(score) = self.score(board, turn, depth) {
             return score;
         }
+
+        let mut alpha = alpha;
+        let mut beta = beta;
 
         let valid_moves = get_valid_moves(board);
 
@@ -42,22 +47,34 @@ impl MasterBot {
             let mut value = -100_000;
             for (i, j) in get_valid_moves(board) {
                 board[i][j] = *turn;
-                let score = self.minimax(board, turn, false, depth + 1);
+                let score = self.minimax(board, turn, false, depth + 1, alpha, beta);
                 board[i][j] = Tile::Empty;
                 if score > value {
                     value = score
-                };
+                }
+                if value > alpha {
+                    alpha = value;
+                }
+                if value >= beta {
+                    break;
+                }
             }
             value
         } else {
             let mut value = 100_000;
             for (i, j) in get_valid_moves(board) {
                 board[i][j] = if *turn == Tile::X { Tile::O } else { Tile::X };
-                let score = self.minimax(board, turn, true, depth + 1);
+                let score = self.minimax(board, turn, true, depth + 1, alpha, beta);
                 board[i][j] = Tile::Empty;
                 if score < value {
                     value = score
-                };
+                }
+                if value < beta {
+                    beta = value;
+                }
+                if value <= alpha {
+                    break;
+                }
             }
             value
         }
@@ -74,7 +91,7 @@ impl TicTacToeBot for MasterBot {
             .map(|(i, j)| {
                 let mut b = board.clone();
                 b[*i][*j] = *turn;
-                let score = self.minimax(&mut b, turn, false, 0);
+                let score = self.minimax(&mut b, turn, false, 0, std::i32::MIN, std::i32::MAX);
                 (i, j, score)
             })
             .collect();

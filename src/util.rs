@@ -1,6 +1,6 @@
+use crate::types::{Board, Position, Tile, SIZE};
 use std::io;
 use std::io::prelude::*;
-use crate::types::{Board, Position, Tile, SIZE};
 
 pub fn get_selection(board: &Board) -> Option<Position> {
     loop {

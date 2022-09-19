@@ -1,6 +1,6 @@
 use crate::bots::tic_tac_toe_bot::TicTacToeBot;
 use crate::types::{Board, Position, Tile};
-use crate::util::{get_valid_moves, determine_winner};
+use crate::util::{determine_winner, get_valid_moves};
 use rand::prelude::SliceRandom;
 
 pub struct EasyBot;
