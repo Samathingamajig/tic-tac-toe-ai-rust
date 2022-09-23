@@ -2,12 +2,13 @@ use crate::tic_tac_toe_player::{Players, TicTacToePlayer};
 use std::io;
 use std::io::prelude::*;
 use strum::IntoEnumIterator;
+use crate::types::Tile;
 use crate::bots;
 use crate::human;
 
-pub fn choose_player(number: i32) -> Option<Box<dyn TicTacToePlayer>> {
+pub fn choose_player(tile: Tile) -> Option<Box<dyn TicTacToePlayer>> {
     let players: Vec<_> = Players::iter().collect();
-    println!("Select player #{}:", number);
+    println!("Select player {} (enter number):", tile);
     for (i, p) in players.iter().enumerate() {
         println!("  {}. {:?}", i + 1, p);
     }

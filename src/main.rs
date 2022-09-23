@@ -9,11 +9,15 @@ use crate::util::{determine_winner, print_board};
 use crate::selection::choose_player;
 
 fn main() {
+    println!("Tic-Tac-Toe AI");
+    println!("by Samuel Gunter");
+    println!("--------------------");
+    println!();
     let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
     let mut turn_number = 0;
-    let player1 = choose_player(1).expect("No player1 selected");
+    let player_x = choose_player(Tile::X).expect("No player X selected");
     println!();
-    let player2 = choose_player(2).expect("No player2 selected");
+    let player_o = choose_player(Tile::O).expect("No player O selected");
     println!();
     let winner: Option<Tile> = loop {
         print_board(&board);
@@ -23,9 +27,9 @@ fn main() {
             Tile::O
         };
         let selection = if turn_number % 2 == 0 {
-            player1.next_move(&board, &turn)
+            player_x.next_move(&board, &turn)
         } else {
-            player2.next_move(&board, &turn)
+            player_o.next_move(&board, &turn)
         };
         println!();
         println!("Selected {:?}", selection);
