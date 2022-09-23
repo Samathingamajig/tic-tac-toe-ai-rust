@@ -1,15 +1,20 @@
 mod bots;
 mod types;
 mod util;
-use crate::bots::master_bot::MasterBot;
-use crate::bots::tic_tac_toe_bot::TicTacToeBot;
+mod tic_tac_toe_player;
+mod selection;
+mod human;
 use crate::types::{Board, Tile, SIZE};
-use crate::util::{determine_winner, get_selection, indicies_to_position, print_board};
+use crate::util::{determine_winner, print_board};
+use crate::selection::choose_player;
 
 fn main() {
     let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
     let mut turn_number = 0;
-    let bot: Box<dyn TicTacToeBot> = Box::new(MasterBot {});
+    let player1 = choose_player(1).expect("No player1 selected");
+    println!();
+    let player2 = choose_player(2).expect("No player2 selected");
+    println!();
     let winner: Option<Tile> = loop {
         print_board(&board);
         let turn = if turn_number % 2 == 0 {
@@ -18,18 +23,9 @@ fn main() {
             Tile::O
         };
         let selection = if turn_number % 2 == 0 {
-            let next_move = bot.next_move(&board, &turn);
-            println!(
-                "Bot: {:?} aka {}",
-                next_move,
-                indicies_to_position(next_move)
-            );
-            next_move
+            player1.next_move(&board, &turn)
         } else {
-            match get_selection(&board) {
-                Some(n) => n,
-                None => break None,
-            }
+            player2.next_move(&board, &turn)
         };
         println!();
         println!("Selected {:?}", selection);

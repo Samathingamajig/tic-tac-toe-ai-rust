@@ -1,5 +1,3 @@
-use crate::types::{Board, Position, Tile};
+use crate::tic_tac_toe_player::TicTacToePlayer;
 
-pub trait TicTacToeBot {
-    fn next_move(&self, board: &Board, turn: &Tile) -> Position;
-}
+pub trait TicTacToeBot: TicTacToePlayer {}

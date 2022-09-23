@@ -1,4 +1,5 @@
 use crate::bots::tic_tac_toe_bot::TicTacToeBot;
+use crate::tic_tac_toe_player::TicTacToePlayer;
 use crate::types::{Board, Position, Tile};
 use crate::util::{determine_winner, get_valid_moves};
 use rand::prelude::SliceRandom;
@@ -81,7 +82,9 @@ impl MasterBot {
     }
 }
 
-impl TicTacToeBot for MasterBot {
+impl TicTacToeBot for MasterBot {}
+
+impl TicTacToePlayer for MasterBot {
     fn next_move(&self, board: &Board, turn: &Tile) -> Position {
         let mut rng = rand::thread_rng();
         let valid_moves = get_valid_moves(&board);
