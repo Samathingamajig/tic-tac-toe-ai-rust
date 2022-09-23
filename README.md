@@ -12,7 +12,7 @@
 
 You have a couple of options:
 
-1. Run/fork this project on [replit.com](https://replit.com/@Samathingamajig/tic-tac-toe-ai#Cargo.toml)
+1. Run/fork this project on [replit.com](https://replit.com/@Samathingamajig/tic-tac-toe-ai#README.md)
 
 or
 
