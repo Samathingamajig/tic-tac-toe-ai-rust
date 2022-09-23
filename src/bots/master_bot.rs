@@ -1,4 +1,4 @@
-use crate::bots::tic_tac_toe_bot::TicTacToeBot;
+use super::tic_tac_toe_bot::TicTacToeBot;
 use crate::tic_tac_toe_player::TicTacToePlayer;
 use crate::types::{Board, Position, Tile};
 use crate::util::{determine_winner, get_valid_moves};

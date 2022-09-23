@@ -2,7 +2,7 @@ use crate::tic_tac_toe_player::{Players, TicTacToePlayer};
 use std::io;
 use std::io::prelude::*;
 use strum::IntoEnumIterator;
-use crate::bots::*;
+use crate::bots;
 use crate::human;
 
 pub fn choose_player(number: i32) -> Option<Box<dyn TicTacToePlayer>> {
@@ -42,9 +42,9 @@ pub fn choose_player(number: i32) -> Option<Box<dyn TicTacToePlayer>> {
         None => None,
         Some(n) => match &players[n - 1] {
             Players::Human => Some(Box::new(human::Human)),
-            Players::EasyBot => Some(Box::new(easy_bot::EasyBot)),
-            Players::RandomBot => Some(Box::new(random_bot::RandomBot)),
-            Players::MasterBot => Some(Box::new(master_bot::MasterBot)),
+            Players::RandomBot => Some(Box::new(bots::RandomBot)),
+            Players::EasyBot => Some(Box::new(bots::EasyBot)),
+            Players::MasterBot => Some(Box::new(bots::MasterBot)),
         },
     }
 }
