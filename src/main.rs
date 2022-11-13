@@ -15,9 +15,9 @@ fn main() {
     println!();
     let mut board: Board = [[Tile::Empty; SIZE]; SIZE];
     let mut turn_number = 0;
-    let player_x = choose_player(Tile::X).expect("No player X selected");
+    let player_x = choose_player(Tile::X);
     println!();
-    let player_o = choose_player(Tile::O).expect("No player O selected");
+    let player_o = choose_player(Tile::O);
     println!();
     let winner: Option<Tile> = loop {
         print_board(&board);

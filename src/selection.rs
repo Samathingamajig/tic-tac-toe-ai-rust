@@ -1,51 +1,24 @@
 use crate::tic_tac_toe_player::{Players, TicTacToePlayer};
-use std::io;
-use std::io::prelude::*;
 use strum::IntoEnumIterator;
 use crate::types::Tile;
 use crate::bots;
 use crate::human;
+use dialoguer::{theme::ColorfulTheme, FuzzySelect};
 
-pub fn choose_player(tile: Tile) -> Option<Box<dyn TicTacToePlayer>> {
-    let players: Vec<_> = Players::iter().collect();
-    println!("Select player {} (enter number):", tile);
-    for (i, p) in players.iter().enumerate() {
-        println!("  {}. {:?}", i + 1, p);
-    }
-    let selection = loop {
-        let mut buffer = String::new();
-        print!("? ");
-        io::stdout()
-            .flush()
-            .ok()
-            .expect("couldn't flush for some reason??");
-        io::stdin()
-            .read_line(&mut buffer)
-            .expect("Error reading from stdin");
-        let selection: usize = match buffer.trim().parse() {
-            Ok(n) => n,
-            Err(_) => {
-                if buffer.trim() == "exit" {
-                    break None;
-                }
-                println!("Error parsing '{}'", buffer.trim());
-                continue;
-            }
-        };
-        if !(1..=players.len()).contains(&selection) {
-            println!("Not in range");
-            continue;
-        };
-        break Some(selection);
-    };
+pub fn choose_player(tile: Tile) -> Box<dyn TicTacToePlayer> {
+    let player_options: Vec<_> = Players::iter().collect();
 
-    match selection {
-        None => None,
-        Some(n) => match &players[n - 1] {
-            Players::Human => Some(Box::new(human::Human)),
-            Players::RandomBot => Some(Box::new(bots::RandomBot)),
-            Players::EasyBot => Some(Box::new(bots::EasyBot)),
-            Players::MasterBot => Some(Box::new(bots::MasterBot)),
-        },
+    let selection_index = FuzzySelect::with_theme(&ColorfulTheme::default())
+        .with_prompt(format!("Select player for {}", tile))
+        .default(0)
+        .items(&player_options[..])
+        .interact()
+        .expect("Failed to select player");
+
+    match &player_options[selection_index] {
+        Players::Human => Box::new(human::Human),
+        Players::RandomBot => Box::new(bots::RandomBot),
+        Players::EasyBot =>Box::new(bots::EasyBot),
+        Players::MasterBot => Box::new(bots::MasterBot),
     }
 }

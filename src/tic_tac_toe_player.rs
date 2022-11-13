@@ -1,5 +1,6 @@
 use crate::types::{Board, Position, Tile};
 use strum::{EnumIter, EnumString};
+use std::fmt;
 
 #[derive(Debug, EnumIter, EnumString)]
 pub enum Players {
@@ -7,6 +8,12 @@ pub enum Players {
     RandomBot,
     EasyBot,
     MasterBot,
+}
+
+impl fmt::Display for Players {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 pub trait TicTacToePlayer {
